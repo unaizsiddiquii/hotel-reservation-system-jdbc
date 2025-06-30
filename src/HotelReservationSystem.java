@@ -3,7 +3,7 @@ import java.sql.*;
 import java.util.Scanner;
 
 public class HotelReservationSystem {
-    private static final String url = "jdbc:mysql://localhost:3306/hostel_db";
+    private static final String url = "jdbc:mysql://localhost:3306/hotel_db";
     private static final String username = "root";
     private static final String password = "US0726unaiz@";
 
@@ -30,6 +30,7 @@ public class HotelReservationSystem {
 
                 System.out.print("Choose an option: ");
                 int choice = scanner.nextInt();
+                scanner.nextLine();
 
                 switch (choice) {
                     case 1:
@@ -62,25 +63,29 @@ public class HotelReservationSystem {
         }
     }
 
-    public static void reserveRoom(Connection connection, Scanner scanner) {
-//        Statement statement = connection.createStatement();
-//        int effectedRow = statement.executeUpdate("");
+    public static void reserveRoom(Connection connection, Scanner scanner) throws SQLException {
+        System.out.print("Enter the Guest Name: ");
+        String guestName = scanner.nextLine();
+        System.out.print("Enter the Room Number: ");
+        int roomNumber = scanner.nextInt();
+        scanner.nextLine();
 
+        System.out.print("Enter the Contact Number: ");
+        String contactNumber = scanner.nextLine().trim();
+
+        String query = "INSERT INTO reservations(guest_name, room_number, contact_number) VALUES('" + guestName + "'," + roomNumber + ", '" + contactNumber + "');";
         try {
-            System.out.print("Enter the Guest Name: ");
-            String guestName = scanner.nextLine();
-
-            System.out.print("Enter the Room Number: ");
-            int roomNumber = scanner.nextInt();
-
-            System.out.print("Enter the Contact Number: ");
-            String contactNumber = scanner.next();
-
-            String Query = "INSERT INTO reservations(guest_name,room_number,contact,number) VALUES('Alice Smith', 125, '9876543210');";
 
             Statement statement = connection.createStatement();
+            int effectedRow = statement.executeUpdate(query);
+            if (effectedRow > 0) {
+                System.out.println("Reservation Successful.");
+            } else {
+                System.out.println("Reservation Failed.");
+            }
 
-
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
 
     }
