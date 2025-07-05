@@ -1,4 +1,3 @@
-
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.Scanner;
@@ -76,9 +75,7 @@ public class HotelReservationSystem {
         String contactNumber = scanner.nextLine().trim();
 
         String query = "INSERT INTO reservations(guest_name, room_number, contact_number) VALUES('" + guestName + "'," + roomNumber + ", '" + contactNumber + "');";
-        try {
-
-            Statement statement = connection.createStatement();
+        try (Statement statement = connection.createStatement()) {
             int effectedRow = statement.executeUpdate(query);
             if (effectedRow > 0) {
                 System.out.println("Reservation Successful.");
@@ -123,12 +120,69 @@ public class HotelReservationSystem {
 
     }
 
-    public static void getRoomNumber(Scanner scanner) {
+    public static void getRoomNumber(Scanner scanner) throws SQLException {
+        try {
 
+            System.out.print("Enter Reservation Id: ");
+            int reservationId = scanner.nextInt();
+            scanner.nextLine();
+            System.out.print("Enter Guest Name: ");
+            String guestName = scanner.nextLine();
+
+            String query = "SELECT room_number FROM reservations WHERE reservation_id = " + reservationId + " AND guest_name = '" + guestName + "'";
+            try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(query);) {
+                if (resultSet.next()) {
+                    int roomNumber = resultSet.getInt("room_number");
+                    System.out.println("Room Number: " + roomNumber);
+                    System.out.println("Reservation Id: " + reservationId + "\nGuest Name: " + guestName);
+
+                } else {
+                    System.out.println("Reservation not found for id:  " + reservationId + ", and guest name: " + guestName);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
-    public static void updateReservation(Scanner scanner) {
+    public static void updateReservation(Scanner scanner) throws SQLException {
 
+        try {
+
+            System.out.print("Enter the Reservation Id: ");
+            int reservationId = scanner.nextInt();
+            scanner.nextLine();
+            if (!reservationExists(reservationId)) {
+                System.out.println("Reservation not exist with id: " + reservationId);
+                return;
+            }
+            System.out.print("Enter the Guest Name: ");
+            String newGuestName = scanner.nextLine();
+            System.out.print("Enter the Room Number: ");
+            int newRoomNumber = scanner.nextInt();
+            scanner.nextLine();
+
+            System.out.print("Enter the Contact Number: ");
+            String newContactNumber = scanner.nextLine().trim();
+
+            String query = "UPDATE reservations SET guest_name = '" + newGuestName + "', " +
+                    "room_number = " + newRoomNumber + ", " +
+                    "contact_number = '" + newContactNumber + "' " +
+                    "WHERE reservation_id = " + reservationId;
+
+            try (Statement statement = connection.createStatement()) {
+
+                int effectedRows = statement.executeUpdate(query);
+                if (effectedRows > 0) {
+                    System.out.println("Reservation Update Successfully");
+                } else {
+                    System.out.println("Reservation Update failed.");
+                }
+
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     public static void deleteReservations(Scanner scanner) {
@@ -137,5 +191,18 @@ public class HotelReservationSystem {
 
     public static void exit() {
 
+    }
+
+    public static boolean reservationExists(int reservationId) throws SQLException {
+        String query = "SELECT * FROM reservations WHERE reservation_id = '" + reservationId + "'";
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            return resultSet.next();
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
     }
 }
