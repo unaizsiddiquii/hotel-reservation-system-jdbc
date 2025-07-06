@@ -59,7 +59,7 @@ public class HotelReservationSystem {
                 }
 
             }
-        } catch (SQLException e) {
+        } catch (SQLException | InterruptedException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -211,7 +211,16 @@ public class HotelReservationSystem {
 
     }
 
-    public static void exit() {
+    public static void exit() throws InterruptedException {
+        System.out.print("Existing System");
+        int i = 5;
+        while (i != 0) {
+            System.out.print(".");
+            Thread.sleep(450);
+            i--;
+        }
+        System.out.println();
+        System.out.println("ThankYou For using Reservation System");
 
     }
 
